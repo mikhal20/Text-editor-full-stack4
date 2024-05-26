@@ -1,0 +1,131 @@
+import React, { useState } from 'react';
+import Picker from 'emoji-picker-react';
+import './App.css';
+
+const App = () => {
+  const [text, setText] = useState('');
+  const [fontSize, setFontSize] = useState(16);
+  const [fontFamily, setFontFamily] = useState('Arial');
+  const [fontColor, setFontColor] = useState('#000000');
+  const [history, setHistory] = useState([]);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [language, setLanguage] = useState('english');
+  const [isUpperCase, setIsUpperCase] = useState(false);
+
+  const handleKeyPress = (char) => {
+    setHistory(prevHistory => [...prevHistory, text]);
+    setText(prev => isUpperCase ? prev + char.toUpperCase() : prev + char);
+  };
+
+  const handleDelete = () => {
+    setHistory(prevHistory => [...prevHistory, text]);
+    setText(prev => prev.slice(0, -1));
+  };
+
+  const handleClear = () => {
+    setHistory(prevHistory => [...prevHistory, text]);
+    setText('');
+  };
+
+  const handleUndo = () => {
+    setHistory(prevHistory => {
+      if (prevHistory.length === 0) return prevHistory;
+      const lastState = prevHistory[prevHistory.length - 1];
+      setText(lastState);
+      return prevHistory.slice(0, -1);
+    });
+  };
+
+  const handleFontSizeChange = (e) => {
+    setFontSize(e.target.value);
+  };
+
+  const handleFontFamilyChange = (e) => {
+    setFontFamily(e.target.value);
+  };
+
+  const handleFontColorChange = (color) => {
+    setFontColor(color);
+  };
+
+  const handleEmojiClick = (emojiObject) => {
+    handleKeyPress(emojiObject.emoji);
+  };
+
+  const handleLanguageChange = (lang) => {
+    setLanguage(lang);
+  };
+
+  const toggleUpperCase = () => {
+    setIsUpperCase(prevState => !prevState);
+  };
+
+  return (
+    <div className="editor-container">
+      <h1 className="title">Text Editor</h1>
+      <div className="toolbar">
+        <div className="language-switcher">
+          <button onClick={() => handleLanguageChange('english')}>English</button>
+          <button onClick={() => handleLanguageChange('hebrew')}>עברית</button>
+          <button onClick={() => setShowEmojiPicker(!showEmojiPicker)}>😀</button>
+        </div>
+        <div className="formatting-buttons">
+          <button onClick={handleDelete}>Delete</button>
+          <button onClick={handleClear}>Clear</button>
+          <button onClick={handleUndo}>Undo</button>
+          <button onClick={toggleUpperCase}>UpperCase</button>
+          <div className="font-size-selector">
+            <label htmlFor="fontSize" className="labels">Font Size:</label>
+            <select id="fontSize" value={fontSize} onChange={handleFontSizeChange}>
+              {[...Array(13)].map((_, i) => (
+                <option key={i} value={8 + i * 2}>{8 + i * 2}</option>
+              ))}
+            </select>
+          </div>
+          <div className="font-family-selector">
+            <label htmlFor="fontFamily" className="labels">Font Family:</label>
+            <select id="fontFamily" value={fontFamily} onChange={handleFontFamilyChange}>
+              <option value="Arial">Arial</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Courier New">Courier New</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Tahoma">Tahoma</option>
+            </select>
+          </div>
+          <div className="color-picker">
+            <label htmlFor="fontColor" className="labels">Color:</label>
+            <input id="fontColor" type="color" onChange={(e) => handleFontColorChange(e.target.value)} value={fontColor} />
+          </div>
+        </div>
+      </div>
+      {showEmojiPicker && <Picker onEmojiClick={(event, emojiObject) => handleEmojiClick(emojiObject)} />}
+      <div className="keyboard">
+        {language === 'english' && 'abcdefghijklmnopqrstuvwxyz0123456789?!@#$%^&*()_-+=.,'.split('').map(char => (
+          <button key={char} onClick={() => handleKeyPress(char)}>{char}</button>
+        ))}
+        {language === 'hebrew' && '?!@#$%^&*()_-+=.,אבגדהוזחטיכלמנסעפצקרשת0123456789'.split('').map(char => (
+          <button key={char} onClick={() => handleKeyPress(char)}>{char}</button>
+        ))}
+      </div>
+      <div className="text-display" style={{ fontSize: `${fontSize}px`, fontFamily: fontFamily, color: fontColor }}>
+        {text}
+      </div>
+    </div>
+  );
+};
+
+export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
