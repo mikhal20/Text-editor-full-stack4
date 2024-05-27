@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Picker from 'emoji-picker-react';
 import './App.css';
 
 const App = () => {
@@ -8,25 +7,35 @@ const App = () => {
   const [fontFamily, setFontFamily] = useState('Arial');
   const [fontColor, setFontColor] = useState('#000000');
   const [history, setHistory] = useState([]);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [language, setLanguage] = useState('english');
+  const [isTyping, setIsTyping] = useState(false);
+  const [showEmojiList, setShowEmojiList] = useState(false);
   const [isUpperCase, setIsUpperCase] = useState(false);
+  const [emojis] = useState([
+    '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍',
+    '😘', '😗', '😙', '😚', '😋', '😛', '😜', '😝', '😎', '🤓', '🤠', '😈', '👿', '👹', '👺'
+  ]);
 
+  // Function to handle key press events
   const handleKeyPress = (char) => {
     setHistory(prevHistory => [...prevHistory, text]);
-    setText(prev => isUpperCase ? prev + char.toUpperCase() : prev + char);
+    setText(prev => prev + (isUpperCase ? char.toUpperCase() : char));
+    setIsTyping(true);
   };
 
+  // Function to handle delete button click
   const handleDelete = () => {
     setHistory(prevHistory => [...prevHistory, text]);
     setText(prev => prev.slice(0, -1));
   };
 
+  // Function to handle clear button click
   const handleClear = () => {
     setHistory(prevHistory => [...prevHistory, text]);
     setText('');
   };
 
+  // Function to handle undo button click
   const handleUndo = () => {
     setHistory(prevHistory => {
       if (prevHistory.length === 0) return prevHistory;
@@ -36,28 +45,35 @@ const App = () => {
     });
   };
 
+  // Function to handle font size change
   const handleFontSizeChange = (e) => {
     setFontSize(e.target.value);
   };
 
+  // Function to handle font family change
   const handleFontFamilyChange = (e) => {
     setFontFamily(e.target.value);
   };
 
+  // Function to handle font color change
   const handleFontColorChange = (color) => {
     setFontColor(color);
   };
 
-  const handleEmojiClick = (emojiObject) => {
-    handleKeyPress(emojiObject.emoji);
-  };
-
+  // Function to handle language change
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
   };
 
+  // Function to toggle uppercase mode
   const toggleUpperCase = () => {
     setIsUpperCase(prevState => !prevState);
+  };
+
+  // Function to handle emoji click event
+  const handleEmojiClick = (emoji) => {
+    handleKeyPress(emoji);
+    setShowEmojiList(false);
   };
 
   return (
@@ -67,7 +83,14 @@ const App = () => {
         <div className="language-switcher">
           <button onClick={() => handleLanguageChange('english')}>English</button>
           <button onClick={() => handleLanguageChange('hebrew')}>עברית</button>
-          <button onClick={() => setShowEmojiPicker(!showEmojiPicker)}>😀</button>
+          <button onClick={() => setShowEmojiList(!showEmojiList)}>😀</button>
+          {showEmojiList && (
+            <div className="emoji-list">
+              {emojis.map((emoji, index) => (
+                <span key={index} onClick={() => handleEmojiClick(emoji)}>{emoji}</span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="formatting-buttons">
           <button onClick={handleDelete}>Delete</button>
@@ -99,23 +122,25 @@ const App = () => {
           </div>
         </div>
       </div>
-      {showEmojiPicker && <Picker onEmojiClick={(event, emojiObject) => handleEmojiClick(emojiObject)} />}
       <div className="keyboard">
-        {language === 'english' && 'abcdefghijklmnopqrstuvwxyz0123456789?!@#$%^&*()_-+=.,'.split('').map(char => (
+        {language === 'english' && 'abcdefghijklmnopqrstuvwxyz0123456789!?@#$%^&*()_-+=/.,'.split('').map(char => (
           <button key={char} onClick={() => handleKeyPress(char)}>{char}</button>
         ))}
-        {language === 'hebrew' && '?!@#$%^&*()_-+=.,אבגדהוזחטיכלמנסעפצקרשת0123456789'.split('').map(char => (
+        {language === 'hebrew' && 'אבגדהוזחטיכלמנסעפצקרשת!?@#$%^&*()_-+=/.,0123456789'.split('').map(char => (
           <button key={char} onClick={() => handleKeyPress(char)}>{char}</button>
         ))}
       </div>
       <div className="text-display" style={{ fontSize: `${fontSize}px`, fontFamily: fontFamily, color: fontColor }}>
-        {text}
+        {!isTyping && text === '' ? 'Write here...' : text}
       </div>
     </div>
   );
 };
 
 export default App;
+
+
+
 
 
 
